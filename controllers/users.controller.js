@@ -8,21 +8,19 @@ console.log('Inside controllers : ');
 
 exports.Signup = async (req, res) => {
   try {
-    console.log('Signing up');
-    const { username, full_name, email, password } = req.body;
-    console.log("inside Signup :: ",username,);
+    // console.log('Signing up');
+    const { username, name, email, password } = req.body;
     const ValidateUser = z.object({
       username: z
-        .string()
+        .string("username can be string only!")
         .min(5, "username must be of atleast 5 character long")
         .max(25, "username should be no longer than 25 characters")
         .trim()
         .toLowerCase(),
-      full_name: z.string(),
-      email: z.string().email().trim(),
+      name: z.string("name can be string only"),
+      email: z.string("email can be string only").email().trim(),
       password: z
-        .string()
-        .trim()
+        .string("password can be string only")
         .min(5, "password must be of atleast 5 character long")
         .max(20, "password should be no longer than 20 characters")
         .trim(),
@@ -32,7 +30,7 @@ exports.Signup = async (req, res) => {
     //  console.log("Got all fields -> ",name,email,password,typeof(email));
     // console.log('validated data : ',validatedData);
     if(!validatedData.success){
-        // console.log('validated error : ',validatedData.error.errors);
+        console.log('validated error : ',validatedData.error.errors);
         const errorMessages = validatedData.error.errors.map(error => error.message);
         throw new Error(errorMessages);
     }
@@ -50,7 +48,7 @@ exports.Signup = async (req, res) => {
     await con.query(
       `insert into users(full_name,email,password_hash,username)values('${validatedData.data.full_name}','${validatedData.data.email}','${hashPass}','${validatedData.data.username}')`
     );
-    res
+    return res
       .status(200)
       .json({ success: true, message: "User registered successfully!" });
   } catch (error) {
@@ -91,7 +89,7 @@ exports.Signin = async (req, res) => {
         .json({ success: false, message: "Password Mismatch!" });
     } else {
      
-      var token = jwt.sign({ email: email,username:username,name:user[0][0]?.full_name,bio:user[0][0]?.bio,privacy_level:user[0][0]?.privacy_level,profile_url:user[0][0]?.profile_url }, process.env.JWT_SECRET);
+      var token = jwt.sign({ email: user[0][0]?.email,username:user[0][0]?.username,name:user[0][0]?.full_name,bio:user[0][0]?.bio,privacy_level:user[0][0]?.privacy_level,profile_url:user[0][0]?.profile_url, userId:user[0][0]?.user_id }, process.env.JWT_SECRET);
       
       // console.log("Signin hadler token : ", token);
       return res.status(200).json({
@@ -154,7 +152,8 @@ exports.getUserDetails=async(req,res)=>{
 
 exports.updateProfile=async(req,res)=>{
    try{
-      const {id} = req.params;
+      // const {id} = req.params;
+      const id = req.user.userId;
       if(!id){
         return res.status(401).json({
           success:false,
@@ -204,7 +203,8 @@ exports.updateProfile=async(req,res)=>{
 
 exports.deleteProfile=async(req,res)=>{
   try{
-    const {id} = req.params;
+    // const {id} = req.params;
+    const id  = req.user.userId;
     if(!id){
       return res
         .status(401)

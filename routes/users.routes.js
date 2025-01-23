@@ -8,7 +8,7 @@ console.log("Inside api routes : ");
 router.post('/signup',Signup);
 router.post('/signin',Signin);
 router.get('/profile/:id',auth,getUserDetails);
-router.put('/profile/:id',auth,updateProfile);
-router.delete('/profile/:id',auth,deleteProfile);
+router.put('/profile',auth,updateProfile);
+router.delete('/profile',auth,deleteProfile);
 
 module.exports = router;
