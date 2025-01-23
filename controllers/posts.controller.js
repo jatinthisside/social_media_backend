@@ -144,7 +144,7 @@ exports.unLikePost=async(req,res)=>{
      if(!userId){
       return res.status(401).json({
         success:false,
-        message: "only logged in users are allowed to like a post!"
+        message: "only logged in users are allowed to unlike a post!"
       }) 
      }
      await con.query(`delete from post_likes where post_id = ${postId} AND user_id = ${userId}`);
