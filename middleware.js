@@ -13,9 +13,9 @@ exports.auth = async(req,res,next) => {
       
        const user = await con.query(`Select * from users where email = "${decoded.email}"`);
 
-       console.log("user in middleware : ", user);
+       console.log("user in middleware : ", user[0]);
 
-       if(user[0].length<=0) {
+       if(Object.entries(user[0][0]).length == 0) {
         return res.status(401).json({
           success:false,
           message:'User with email not exist!'
@@ -24,7 +24,7 @@ exports.auth = async(req,res,next) => {
 
        req.user = decoded;
        
-       if(user[0].length > 0){
+       if(Object.entries(user[0][0]).length !== 0){
          next();
        }else{
           return res.status(302).json({
